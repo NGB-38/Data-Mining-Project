@@ -1,3 +1,5 @@
+package src;
+
 import weka.classifiers.lazy.IBk;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
@@ -12,7 +14,7 @@ public class IBK {
         DataSource source = new DataSource("Dataset/Titanic.arff");
         Instances dataset = source.getDataSet();
 
-        // Convert Survived to nominal if it's numeric
+        // Convert Survived to nominal
         weka.filters.unsupervised.attribute.NumericToNominal convert = new weka.filters.unsupervised.attribute.NumericToNominal();
         convert.setAttributeIndices("1"); // First attribute (Survived)
         convert.setInputFormat(dataset);
@@ -23,7 +25,7 @@ public class IBK {
 
         // Build IBK classifier
         weka.classifiers.lazy.IBk knn = new weka.classifiers.lazy.IBk();
-        knn.setKNN(3); // Set the number of neighbors (k)
+        knn.setKNN(2); // Set the number of neighbors (k)
         knn.buildClassifier(dataset);
 
         // Evaluate the model
@@ -35,17 +37,6 @@ public class IBK {
         System.out.println("Precision: " + eval.weightedPrecision());
         System.out.println("Recall: " + eval.weightedRecall());
         System.out.println("F-Measure: " + eval.weightedFMeasure());
-
-        // Ensure the Models directory exists
-        File modelsDir = new File("Models");
-        if (!modelsDir.exists()) {
-            if (modelsDir.mkdir()) {
-                System.out.println("Models directory created.");
-            } else {
-                System.err.println("Failed to create Models directory.");
-                return;
-            }
-        }
 
         // Save the model
         weka.core.SerializationHelper.write("Models/IBK_Model.model", knn);
