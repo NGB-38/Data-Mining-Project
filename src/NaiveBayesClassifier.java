@@ -26,7 +26,7 @@ public class NaiveBayesClassifier {
         if (data.classAttribute().isNumeric()) {
             System.out.println("Converting numeric class to nominal...");
             NumericToNominal convert = new NumericToNominal();
-            convert.setAttributeIndices("last"); // Specify the class attribute
+            convert.setAttributeIndices("first"); // Specify the class attribute
             convert.setInputFormat(data);
             data = Filter.useFilter(data, convert);
         }
