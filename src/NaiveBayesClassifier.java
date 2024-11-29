@@ -1,53 +1,63 @@
 package src;
+
+import weka.classifiers.Evaluation;
+import weka.classifiers.bayes.NaiveBayes;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
-import weka.classifiers.bayes.NaiveBayes;
-import weka.core.SerializationHelper;
-
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.NumericToNominal;
 
-import java.io.ObjectOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.File;
+import java.util.Random;
 
-public class NaiveBayesClassifier {
-    public static void train(String inputArffPath, String outputModelPath) throws Exception {
-        // Load ARFF
-        DataSource source = new DataSource(inputArffPath);
-        Instances data = source.getDataSet();
+public class NaiveBayesClassifier{
+    public static void main(String[] args) throws Exception {
+        DataSource source = new DataSource("Dataset/Titanic.arff");
+        Instances dataset = source.getDataSet();
 
-        // Set class index (Survived attribute)
-        if (data.classIndex() == -1) {
-            data.setClassIndex(data.numAttributes() - 1);
+        NumericToNominal numToNom = new NumericToNominal();
+        numToNom.setAttributeIndices("first");
+        numToNom.setInputFormat(dataset);
+
+        Instances newData = Filter.useFilter(dataset, numToNom);
+        newData.setClassIndex(0);
+
+        NaiveBayes bayes = new NaiveBayes();
+        bayes.buildClassifier(newData);
+
+        File modelDir = new File("Models");
+        if (!modelDir.exists()) {
+            modelDir.mkdirs();
         }
 
-        // Apply NumericToNominal filter if necessary
-        if (data.classAttribute().isNumeric()) {
-            System.out.println("Converting numeric class to nominal...");
-            NumericToNominal convert = new NumericToNominal();
-            convert.setAttributeIndices("first"); // Specify the class attribute
-            convert.setInputFormat(data);
-            data = Filter.useFilter(data, convert);
-        }
+        weka.core.SerializationHelper.write("Models/Naive_Bayes.model", bayes);
 
-        // Build NaiveBayes classifier
-        NaiveBayes nb = new NaiveBayes();
-        nb.buildClassifier(data);
+        NaiveBayes loadedBayes = (NaiveBayes) weka.core.SerializationHelper.read("Models/Naive_Bayes.model");
 
-        // Save the model
-        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(outputModelPath));
-        oos.writeObject(nb);
-        oos.close();
-        System.out.println("Model saved to: " + outputModelPath);
-    }
+        //Evaluation
+        long startTime = System.currentTimeMillis(); // Record start time
+        Evaluation eval = new Evaluation(newData);
+        eval.crossValidateModel(loadedBayes, newData, 10, new java.util.Random(1));
+        long endTime = System.currentTimeMillis();
 
+        // Calculate runtime
+        long runtimeMillis = endTime - startTime;
+        double runtimeSeconds = runtimeMillis / 1000.0;
 
-    public static void main(String[] args) {
-        try {
-            train("Dataset/Titanic.arff", "naiveBayes2.model");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        System.out.println(eval.toSummaryString("Evaluation results:\n", false));
+        System.out.println("Correct % = "+eval.pctCorrect());
+        System.out.println("Incorrect % = "+eval.pctIncorrect());
+        System.out.println("AUC = " + eval.areaUnderROC(0));
+        System.out.println("kappa = " + eval.kappa());
+        System.out.println("MAE = " + eval.meanAbsoluteError());
+        System.out.println("RMSE = " + eval.rootMeanSquaredError());
+        System.out.println("RAE = " + eval.relativeAbsoluteError());
+        System.out.println("RRSE = " + eval.rootRelativeSquaredError());
+        System.out.println("Precision = " + eval.precision(0));
+        System.out.println("Recall = " + eval.recall(0));
+        System.out.println("fMeasure = " + eval.fMeasure(0));
+        System.out.println("Error Rate = " + eval.errorRate());
+        System.out.println(eval.toMatrixString("\n=== Overall Confusion Matrix ===\n"));
+        System.out.println("Runtime (seconds): " + runtimeSeconds);
     }
 }
