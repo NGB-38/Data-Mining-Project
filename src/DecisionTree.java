@@ -6,6 +6,7 @@ import weka.core.converters.ConverterUtils.DataSource;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.NumericToNominal;
 
+import java.io.File;
 import java.util.Random;
 
 public class DecisionTree {
@@ -24,7 +25,12 @@ public class DecisionTree {
         tree.buildClassifier(newData);
         System.out.println(tree.graph());
 
-//        weka.core.SerializationHelper.write("Models/Decision_Tree.model", tree);
+        File modelDir = new File("Models");
+        if (!modelDir.exists()) {
+            modelDir.mkdirs();
+        }
+
+        weka.core.SerializationHelper.write("Models/Decision_Tree.model", tree);
 
         J48 loadedTree = (J48) weka.core.SerializationHelper.read("Models/Decision_Tree.model");
     }
