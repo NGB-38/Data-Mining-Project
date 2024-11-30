@@ -16,10 +16,19 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://C:/../Tools/Weka-3-9-6/weka.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../../../Tools/Weka-3-9-6/weka.jar!/" />
+          <root url="jar://D:/IU study/In year courses/Year 3/DM/App/Weka-3-9-6/weka.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
