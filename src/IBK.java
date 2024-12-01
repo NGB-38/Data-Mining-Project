@@ -27,7 +27,7 @@ public class IBK {
 
         // Build IBK classifier
         IBk knn = new IBk();
-        knn.setKNN(2); // Set the number of neighbors (k)
+        knn.setKNN(30); // Set the number of neighbors (k) (root mean square of instances)
         knn.buildClassifier(newData);
 
         // Save the model
@@ -35,11 +35,11 @@ public class IBK {
         if (!modelDir.exists()) {
             modelDir.mkdirs();
         }
-        weka.core.SerializationHelper.write("Models/IBK_Model.model", knn);
+        weka.core.SerializationHelper.write("Models/IBK_Model_CV.model", knn);
         System.out.println("Model saved successfully.");
 
         // Load the model (optional)
-        IBk loadedKnn = (IBk) weka.core.SerializationHelper.read("Models/IBK_Model.model");
+        IBk loadedKnn = (IBk) weka.core.SerializationHelper.read("Models/IBK_Model_CV.model");
         System.out.println("Loaded model successfully.");
 
         // Evaluate the model
