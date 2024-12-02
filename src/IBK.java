@@ -4,10 +4,6 @@ import weka.classifiers.lazy.IBk;
 import weka.classifiers.Evaluation;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
-import weka.filters.Filter;
-import weka.filters.unsupervised.attribute.NumericToNominal;
-
-import java.io.File;
 import java.util.Random;
 
 public class IBK {
@@ -50,9 +46,9 @@ public class IBK {
         System.out.println("RMSE = " + eval.rootMeanSquaredError());
         System.out.println("RAE = " + eval.relativeAbsoluteError());
         System.out.println("RRSE = " + eval.rootRelativeSquaredError());
-        System.out.println("Precision = " + eval.precision(0));
-        System.out.println("Recall = " + eval.recall(0));
-        System.out.println("F-Measure = " + eval.fMeasure(0));
+        System.out.println("Precision (Not survived) = " + eval.precision(0) + ", Precision (Survived) = " + eval.precision(1));
+        System.out.println("Recall (Not survived) = " + eval.recall(0) + ", Recall (Survived) = " + eval.recall(1));
+        System.out.println("F-Measure (Not survived) = " + eval.fMeasure(0) + ", F-Measure (Survived) = " + eval.fMeasure(1));
         System.out.println("Error Rate = " + eval.errorRate());
         System.out.println(eval.toMatrixString("\n=== Overall Confusion Matrix ===\n"));
         System.out.println("Runtime (seconds): " + runtimeSeconds);
