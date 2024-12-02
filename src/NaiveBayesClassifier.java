@@ -12,23 +12,13 @@ import java.util.Random;
 
 public class NaiveBayesClassifier{
     public static void main(String[] args) throws Exception {
-        DataSource source = new DataSource("Dataset/Titanic.arff");
+        DataSource source = new DataSource("Dataset/TitanicNom.arff");
         Instances dataset = source.getDataSet();
 
-        NumericToNominal numToNom = new NumericToNominal();
-        numToNom.setAttributeIndices("first");
-        numToNom.setInputFormat(dataset);
-
-        Instances newData = Filter.useFilter(dataset, numToNom);
-        newData.setClassIndex(0);
+        dataset.setClassIndex(0);
 
         NaiveBayes bayes = new NaiveBayes();
-        bayes.buildClassifier(newData);
-
-        File modelDir = new File("Models");
-        if (!modelDir.exists()) {
-            modelDir.mkdirs();
-        }
+        bayes.buildClassifier(dataset);
 
         weka.core.SerializationHelper.write("Models/Naive_Bayes.model", bayes);
 
@@ -36,8 +26,8 @@ public class NaiveBayesClassifier{
 
         //Evaluation
         long startTime = System.currentTimeMillis(); // Record start time
-        Evaluation eval = new Evaluation(newData);
-        eval.crossValidateModel(loadedBayes, newData, 10, new java.util.Random(1));
+        Evaluation eval = new Evaluation(dataset);
+        eval.crossValidateModel(loadedBayes, dataset, 10, new java.util.Random(1));
         long endTime = System.currentTimeMillis();
 
         // Calculate runtime
@@ -45,8 +35,6 @@ public class NaiveBayesClassifier{
         double runtimeSeconds = runtimeMillis / 1000.0;
 
         System.out.println(eval.toSummaryString("Evaluation results:\n", false));
-        System.out.println("Correct % = "+eval.pctCorrect());
-        System.out.println("Incorrect % = "+eval.pctIncorrect());
         System.out.println("AUC = " + eval.areaUnderROC(0));
         System.out.println("kappa = " + eval.kappa());
         System.out.println("MAE = " + eval.meanAbsoluteError());

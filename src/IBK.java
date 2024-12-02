@@ -13,28 +13,18 @@ import java.util.Random;
 public class IBK {
     public static void main(String[] args) throws Exception {
         // Load dataset
-        DataSource source = new DataSource("Dataset/Titanic.arff");
+        DataSource source = new DataSource("Dataset/TitanicNom.arff");
         Instances dataset = source.getDataSet();
 
-        // Convert Survived attribute to nominal
-        NumericToNominal numToNom = new NumericToNominal();
-        numToNom.setAttributeIndices("1"); // First attribute (Survived)
-        numToNom.setInputFormat(dataset);
-        Instances newData = Filter.useFilter(dataset, numToNom);
-
         // Set the class attribute (target variable)
-        newData.setClassIndex(0); // 'Survived' is the first attribute
+        dataset.setClassIndex(0); // 'Survived' is the first attribute
 
         // Build IBK classifier
         IBk knn = new IBk();
         knn.setKNN(30); // Set the number of neighbors (k) (root mean square of instances)
-        knn.buildClassifier(newData);
+        knn.buildClassifier(dataset);
 
         // Save the model
-        File modelDir = new File("Models");
-        if (!modelDir.exists()) {
-            modelDir.mkdirs();
-        }
         weka.core.SerializationHelper.write("Models/IBK_Model_CV.model", knn);
         System.out.println("Model saved successfully.");
 
@@ -44,8 +34,8 @@ public class IBK {
 
         // Evaluate the model
         long startTime = System.currentTimeMillis(); // Record start time
-        Evaluation eval = new Evaluation(newData);
-        eval.crossValidateModel(loadedKnn, newData, 10, new Random(1)); // 10-fold cross-validation
+        Evaluation eval = new Evaluation(dataset);
+        eval.crossValidateModel(loadedKnn, dataset, 10, new Random(1)); // 10-fold cross-validation
         long endTime = System.currentTimeMillis();
 
         // Calculate runtime
@@ -54,8 +44,6 @@ public class IBK {
 
         // Print evaluation summary
         System.out.println(eval.toSummaryString("Evaluation results:\n", false));
-        System.out.println("Correct % = " + eval.pctCorrect());
-        System.out.println("Incorrect % = " + eval.pctIncorrect());
         System.out.println("AUC = " + eval.areaUnderROC(0));
         System.out.println("Kappa = " + eval.kappa());
         System.out.println("MAE = " + eval.meanAbsoluteError());

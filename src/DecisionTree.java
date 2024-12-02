@@ -12,33 +12,23 @@ import java.util.Random;
 
 public class DecisionTree {
     public static void main(String[] args) throws Exception {
-        DataSource source = new DataSource("Dataset/Titanic.arff");
+        DataSource source = new DataSource("Dataset/TitanicNom.arff");
         Instances dataset = source.getDataSet();
 
-        NumericToNominal numToNom = new NumericToNominal();
-        numToNom.setAttributeIndices("first");
-        numToNom.setInputFormat(dataset);
-
-        Instances newData = Filter.useFilter(dataset, numToNom);
-        newData.setClassIndex(0);
+        dataset.setClassIndex(0);
 
         J48 tree = new J48();
-        tree.buildClassifier(newData);
+        tree.buildClassifier(dataset);
         System.out.println(tree.graph());
-
-        File modelDir = new File("Models");
-        if (!modelDir.exists()) {
-            modelDir.mkdirs();
-        }
 
         weka.core.SerializationHelper.write("Models/Decision_Tree.model", tree);
 
         J48 loadedTree = (J48) weka.core.SerializationHelper.read("Models/Decision_Tree.model");
 
-        //Evaluation
+        //Evaluation using cross validation
         long startTime = System.currentTimeMillis(); // Record start time
-        Evaluation eval = new Evaluation(newData);
-        eval.crossValidateModel(loadedTree, newData, 10, new java.util.Random(1));
+        Evaluation eval = new Evaluation(dataset);
+        eval.crossValidateModel(loadedTree, dataset, 10, new java.util.Random(1));
         long endTime = System.currentTimeMillis();
 
         // Calculate runtime
@@ -46,19 +36,21 @@ public class DecisionTree {
         double runtimeSeconds = runtimeMillis / 1000.0;
 
         System.out.println(eval.toSummaryString("Evaluation results:\n", false));
-        System.out.println("Correct % = "+eval.pctCorrect());
-        System.out.println("Incorrect % = "+eval.pctIncorrect());
-        System.out.println("AUC = " + eval.areaUnderROC(0));
-        System.out.println("kappa = " + eval.kappa());
-        System.out.println("MAE = " + eval.meanAbsoluteError());
-        System.out.println("RMSE = " + eval.rootMeanSquaredError());
-        System.out.println("RAE = " + eval.relativeAbsoluteError());
-        System.out.println("RRSE = " + eval.rootRelativeSquaredError());
-        System.out.println("Precison = " + eval.precision(0));
-        System.out.println("Recall = " + eval.recall(0));
-        System.out.println("fMeasure = " + eval.fMeasure(0));
-        System.out.println("Error Rate = " + eval.errorRate());
+//        System.out.println("AUC = " + eval.areaUnderROC(0));
+//        System.out.println("kappa = " + eval.kappa());
+//        System.out.println("MAE = " + eval.meanAbsoluteError());
+//        System.out.println("RMSE = " + eval.rootMeanSquaredError());
+//        System.out.println("RAE = " + eval.relativeAbsoluteError());
+//        System.out.println("RRSE = " + eval.rootRelativeSquaredError());
+//        System.out.println("Precison = " + eval.precision(0));
+//        System.out.println("Recall = " + eval.recall(0));
+//        System.out.println("fMeasure = " + eval.fMeasure(0));
+//        System.out.println("Error Rate = " + eval.errorRate());
+        System.out.println(eval.toClassDetailsString("=== Detailed Accuracy By Class ===\n"));
         System.out.println(eval.toMatrixString("\n=== Overall Confusion Matrix ===\n"));
         System.out.println("Runtime (seconds): " + runtimeSeconds);
+
+        // Evalutation using testing dataset
+
     }
 }
