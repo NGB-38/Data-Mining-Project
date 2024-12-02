@@ -2,7 +2,6 @@ package src;
 
 import weka.classifiers.lazy.IBk;
 import weka.classifiers.Evaluation;
-import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
 import weka.filters.Filter;
@@ -42,10 +41,32 @@ public class IBK_TrainingSet {
         IBk loadedKnn = (IBk) weka.core.SerializationHelper.read("Models/IBK_Model_TS.model");
         System.out.println("Loaded model successfully.");
 
-        // Evaluate the model using training data (not cross-validation)
+        // Evaluate the model using training data
+        long startTime = System.currentTimeMillis(); // Record start time
         Evaluation eval = new Evaluation(newData);
-        eval.evaluateModel(knn, newData); // Evaluate the model on the same dataset
+        eval.evaluateModel(loadedKnn, newData); // Evaluate the model on the same dataset
+        long endTime = System.currentTimeMillis();
+
+        // Calculate runtime
+        long runtimeMillis = endTime - startTime;
+        double runtimeSeconds = runtimeMillis / 1000.0;
+
+        // Print evaluation summary
         System.out.println("\nTraining dataset evaluation results:");
         System.out.println(eval.toSummaryString("Evaluation results:\n", false));
+        System.out.println("Correct % = " + eval.pctCorrect());
+        System.out.println("Incorrect % = " + eval.pctIncorrect());
+        System.out.println("AUC = " + eval.areaUnderROC(0));
+        System.out.println("Kappa = " + eval.kappa());
+        System.out.println("MAE = " + eval.meanAbsoluteError());
+        System.out.println("RMSE = " + eval.rootMeanSquaredError());
+        System.out.println("RAE = " + eval.relativeAbsoluteError());
+        System.out.println("RRSE = " + eval.rootRelativeSquaredError());
+        System.out.println("Precision = " + eval.precision(0));
+        System.out.println("Recall = " + eval.recall(0));
+        System.out.println("F-Measure = " + eval.fMeasure(0));
+        System.out.println("Error Rate = " + eval.errorRate());
+        System.out.println(eval.toMatrixString("\n=== Overall Confusion Matrix ===\n"));
+        System.out.println("Runtime (seconds): " + runtimeSeconds);
     }
 }
